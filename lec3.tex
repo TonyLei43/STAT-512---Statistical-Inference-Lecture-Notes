@@ -1,0 +1,1314 @@
+%
+% This is a borrowed LaTeX template file for lecture notes for CS267,
+% Applications of Parallel Computing, UCBerkeley EECS Department.
+% Now being used for CMU's 10725 Fall 2012 Optimization course
+% taught by Geoff Gordon and Ryan Tibshirani.  When preparing 
+% LaTeX notes for this class, please use this template.
+%
+% To familiarize yourself with this template, the body contains
+% some examples of its use.  Look them over.  Then you can
+% run LaTeX on this file.  After you have LaTeXed this file then
+% you can look over the result either by printing it out with
+% dvips or using xdvi. "pdflatex template.tex" should also work.
+%
+
+\documentclass[twoside]{article}
+\setlength{\oddsidemargin}{0.25 in}
+\setlength{\evensidemargin}{-0.25 in}
+\setlength{\topmargin}{-0.6 in}
+\setlength{\textwidth}{6.5 in}
+\setlength{\textheight}{8.5 in}
+\setlength{\headsep}{0.75 in}
+\setlength{\parindent}{0 in}
+\setlength{\parskip}{0.1 in}
+
+%
+% ADD PACKAGES here:
+%
+
+\usepackage{amsmath,amsfonts,graphicx}
+\usepackage[colorlinks=true, linkcolor=red, urlcolor=blue]{hyperref}
+
+
+\DeclareSymbolFont{extraup}{U}{zavm}{m}{n}
+\DeclareMathSymbol{\varheart}{\mathalpha}{extraup}{86}
+\DeclareMathSymbol{\vardiamond}{\mathalpha}{extraup}{87}
+
+
+%
+% The following commands set up the lecnum (lecture number)
+% counter and make various numbering schemes work relative
+% to the lecture number.
+%
+\newcounter{lecnum}
+\renewcommand{\thepage}{\thelecnum-\arabic{page}}
+\renewcommand{\thesection}{\thelecnum.\arabic{section}}
+\renewcommand{\theequation}{\thelecnum.\arabic{equation}}
+\renewcommand{\thefigure}{\thelecnum.\arabic{figure}}
+\renewcommand{\thetable}{\thelecnum.\arabic{table}}
+
+%
+% The following macro is used to generate the header.
+%
+\newcommand{\lecture}[4]{
+   \pagestyle{myheadings}
+   \thispagestyle{plain}
+   \newpage
+   \setcounter{lecnum}{#1}
+   \setcounter{page}{1}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{\vspace{2mm}
+    \hbox to 6.28in { {\bf STAT 512: Statistical Inference
+	\hfill Autumn 2025} }
+       \vspace{4mm}
+       \hbox to 6.28in { {\Large \hfill Lecture #1: #2  \hfill} }
+       \vspace{2mm}
+       \hbox to 6.28in { {\it Instructor: #3 \hfill} }
+      \vspace{2mm}}
+   }
+   \end{center}
+   \markboth{Lecture #1: #2}{Lecture #1: #2}
+
+%   {\bf Note}: {\it LaTeX template courtesy of UC Berkeley EECS dept.}
+
+   \vspace*{4mm}
+}
+%
+% Convention for citations is authors' initials followed by the year.
+% For example, to cite a paper by Leighton and Maggs you would type
+% \cite{LM89}, and to cite a paper by Strassen you would type \cite{S69}.
+% (To avoid bibliography problems, for now we redefine the \cite command.)
+% Also commands that create a suitable format for the reference list.
+\renewcommand{\cite}[1]{[#1]}
+\def\beginrefs{\begin{list}%
+        {[\arabic{equation}]}{\usecounter{equation}
+         \setlength{\leftmargin}{2.0truecm}\setlength{\labelsep}{0.4truecm}%
+         \setlength{\labelwidth}{1.6truecm}}}
+\def\endrefs{\end{list}}
+\def\bibentry#1{\item[\hbox{[#1]}]}
+
+%Use this command for a figure; it puts a figure in wherever you want it.
+%usage: \fig{NUMBER}{SPACE-IN-INCHES}{CAPTION}
+\newcommand{\fig}[3]{
+			\vspace{#2}
+			\begin{center}
+			Figure \thelecnum.#1:~#3
+			\end{center}
+	}
+% Use these for theorems, lemmas, proofs, etc.
+\newtheorem{theorem}{Theorem}[lecnum]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newenvironment{proof}{{\bf Proof:}}{\hfill\rule{2mm}{2mm}}
+
+% **** IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
+
+\newcommand\E{\mathbb{E}}
+\newcommand{\note}[1]{\textcolor{red}{#1}}
+\begin{document}
+%FILL IN THE RIGHT INFO.
+%\lecture{**LECTURE-NUMBER**}{**DATE**}{**LECTURER**}{**SCRIBE**}
+\lecture{3}{Expectation and basic asymptotic theories}{Ema Perkovic}
+
+
+\section{Expectation}
+
+For a function $g(x)$,
+the expectation of $g(X)$ is
+$$
+\E(g(X)) = \int g(x) dF(x) =
+\begin{cases}
+ \int_{-\infty}^\infty g(x) p(x)dx, \quad &\mbox{if $X$ is continuous}\\
+ \sum_{x} g(x) p(x), \quad &\mbox{if $X$ is discrete}
+ \end{cases}.
+$$
+In the simplest case $g(x)=x$, 
+$$
+\E(X) = \int x dF(x) =
+\begin{cases}
+ \int_{-\infty}^\infty x p(x)dx, \quad &\mbox{if $X$ is continuous}\\
+ \sum_{x} x p(x), \quad &\mbox{if $X$ is discrete}
+ \end{cases}.
+$$
+is known as the
+the mean (expectation) of a R.V. $X$. 
+Let $\mu = \E(X)$, the variance of $X$
+is ${\sf Var}(X) = \E((X-\mu)^2)$. 
+The mean is a common measure of the center of a distribution
+and the variance is a common measure of the spread of a distribution. 
+
+
+The $m$-th moment of a random variable $X$ is 
+$$
+\E(X^m). 
+$$
+Let $\mu= \E(X)$ be the mean/first moment of $X$,
+the $m$-th \emph{centered} moment of $X$
+is 
+$$
+\E((X-\mu)^m).
+$$
+Thus, the variance is the second centered moment. 
+\note{Some distributions might not be a first or second moment}
+
+
+
+
+
+
+{\bf Example.}
+\begin{itemize}
+\item $X\sim {\sf Binomial}(n,p)$. Then $\E(X)= np$ and ${\sf Var}(X) = np(1-p)$.
+\item $X\sim {\sf Geometric}(p)$. Then $\E(X)= 1/p$ and ${\sf Var}(X) = (1-p)^2/p$.
+\item $X\sim {\sf Poisson}(\lambda)$. Then $\E(X)= \lambda$ and ${\sf Var}(X) = \lambda$.
+\item $X\sim {\sf Normal}(\mu,\sigma^2)$. Then $\E(X)= \mu$ and ${\sf Var}(X) = \sigma^2$.
+\item $X\sim {\sf Exponential}(\lambda)$. Then $\E(X)= 1/\lambda$ and ${\sf Var}(X) = 1/\lambda^2$.
+\item $X\sim {\sf Gamma}(\alpha,\lambda)$. Then $\E(X)= \alpha/\lambda$ and ${\sf Var}(X) = \alpha/\lambda^2$.
+\item $X\sim {\sf Beta}(\alpha,\beta)$. Then $\E(X)= \frac{\alpha}{\alpha+\beta}$ and ${\sf Var}(X) = \frac{\alpha \beta}{(\alpha+\beta)^2(\alpha+\beta+1)}$.
+\item $X\sim {\sf Uniform}(a,b)$. Then $\E(X)= (a+b)/2$ and ${\sf Var}(X) = (b-a)^2/12$.
+\end{itemize}
+
+
+
+
+Expectation are decomposable: 
+$$
+\E\left(\sum_{j=1}^k c_j g_j(X)\right) = \sum_{j=1}^k c_j \cdot\E(g_j(X_i)).
+$$
+Note that the above equality holds even if $X_i$'s are dependent. 
+
+When a set of random variables  $X_1,\cdots,X_n$ are independent, 
+then 
+$$
+\E\left(X_1\cdot X_2\cdots X_n\right) = \E(X_1)\cdot \E(X_2)\cdots \E(X_n).
+$$
+\note{This only holds if the random variables are mutaully independent.}
+In fact, you can also prove that 
+$$
+\E\left(g_1(X_1)\cdot g_2(X_2)\cdots g_n(X_n)\right) = \E(g_1(X_1))\cdot \E(g_2(X_2))\cdots \E(g_3(X_n)).
+$$
+We can also calculate the variance to be 
+
+
+
+
+For two random variables $X$ and $Y$ with their mean being $\mu_X$ and $\mu_Y$
+and variance being $\sigma^2_X$ and $\sigma^2_Y$. 
+The \emph{covariance }
+$$
+{\sf Cov}(X,Y) = \E((X-\mu_x)(Y-\mu_y)) = \E(XY) - \mu_x\mu_y
+$$
+and the (Pearson's) correlation $$
+\rho(X,Y) = \frac{{\sf Cov}(X,Y)}{\sigma_x\sigma_y}.
+$$
+When two R.V. are not independent, we have 
+$$
+{\sf Var}(X\pm Y) = {\sf Var}(X) + {\sf Var}(Y) \pm 2{\sf Cov}(X,Y).
+$$
+
+The independence implies the covariance (and correlation) is $0$, i.e.,
+$$
+X\perp Y \Rightarrow {\sf Cov}(X,Y) = 0.
+$$
+As a result, if $X\perp Y$,
+$$
+{\sf Var}(X+Y) = {\sf Var}(X)+{\sf Var}(Y).
+$$
+A more general result is that for independent random variables
+$X_1,\cdots,X_n$, we have
+$$
+{\sf Var}\left(\sum_{i=1}^n a_iX_i\right) = \sum_{i=1}^n a_i^2 \cdot {\sf Var}(X_i).
+$$
+
+
+
+{\bf Example (Binomial).}
+Here we illustrate how the above properties can be useful in computing the variance of some distributions.
+Consider $X\sim {\sf Binomial}(n,p)$.
+By the definition of a Binomial distribution, we can rewrite $X= Y_1+Y_2+\cdots+Y_n$,
+where each $Y_i$  is an independent Bernoulli random variable with parameter $p$.
+Thus, 
+$$
+{\sf Var}(X) ={\sf Var}(Y_1+Y_2+\cdots+Y_n) = \sum_{i=1}^n {\sf Var}(Y_i) = n p(1-p).
+$$
+
+%The {\bf conditional expectation} of $Y$ given $X$ is the random variable 
+%$\E(Y|X) = g(X)$ such that when $X=x$, its value is
+%$$
+%\E(Y|X=x) = \int y p(y|x) dy,
+%$$
+%where $p(y|x) = p(x,y)/p(x)$.
+%Note that when $X$ and $Y$ are independent, 
+%$$
+%\E(XY) = \E(X)\E(Y),\quad \E(X|Y=y) = \E(X).
+%$$
+
+
+%\emph{Law of total expectation}:
+%\begin{eqnarray*}
+% \E[ \E[Y|X]] &=& \int \E[Y|X=x] p_X(x) dx = \int \int y p_{Y|X}(y|x) p_X(x) dx dy\\
+%&=& \int \int y p_{XY}(x,y) dx dy = \E[Y].
+%\end{eqnarray*}
+%
+%
+%
+%\emph{Law of total variance}:
+%\begin{eqnarray*}
+%{\sf Var}(Y) &=& \E[Y^2] - \E[Y]^2 
+%\\&=& \E[\E(Y^2|X)] - \E[ \E(Y|X)]^2\quad\mbox{(law of total expectation)}\\
+%&=&\E[{\sf Var}(Y|X) + \E(Y|X)^2] - \E[\E(Y|X)]^2\quad\mbox{(definition of variance)}\\
+%%&~&\mbox{definition of variance}\\
+%&=&\E[{\sf Var}(Y|X)] + \left\{
+%\E[\E(Y|X)^2] - \E[\E(Y|X)]^2
+%\right\}\\
+%&=& \E\left[{\sf Var}(Y | X)\right] + {\sf Var}\left(\E[Y \mid X]\right)\quad\mbox{(definition of variance)}.
+%\end{eqnarray*}
+
+
+%\subsection{Variance and covariance}
+%
+%
+%\subsection{Correlation}
+%
+%\section{Law of large numbers}
+%
+%- convergence in probability
+%
+%For a sequence of random variables $Z_1,\cdots,Z_n,\cdots$,
+%we say $Z_n$ {\bf converges in probability} to another random variable $Z$
+%%fixed number $\mu$ 
+%if for any $\epsilon>0$,
+%$$
+%\lim_{n\rightarrow \infty}P(|Z_n-Z|>\epsilon) = 0
+%$$
+%and we will write
+%$$
+%Z_n\overset{P}{\rightarrow} Z
+%$$
+%
+%
+%
+%{\bf Remark (Convergence almost surely).}
+%For a sequence of random variables $Z_1,\cdots,Z_n,\cdots$,
+%we say $Z_n$ {\bf converges almost surely} to a random variable $Z$
+%if
+%$$
+%P(\lim_{n\rightarrow\infty} Z_n=Z) = 1
+%$$
+%or equivalently,
+%$$
+%P(\{\omega: \lim_{n\rightarrow\infty} Z_n(\omega)=Z(\omega)\}) = 1.
+%$$
+%We use the notation
+%$$
+%Z_n\overset{a.s.}{\rightarrow} Z
+%$$
+%to denote convergence almost surely. 
+%Note that almost surely convergence implies convergence in probability.
+%%Convergence in probability implies convergence in distribution. 
+%In many cases, convergence in probability or almost surely converge
+%occurs when a sequence of RVs converging toward a fixed number. 
+%In this case, we will write (assuming that $\mu$ is the target of convergence)
+%$$
+%Z_n\overset{P}{\rightarrow} \mu,\quad Z_n\overset{a.s.}{\rightarrow} \mu.
+%$$
+%Later we will see that the famous Law of Large Number is describing 
+%the convergence toward a fixed number. 
+
+
+
+\section{Moment generating function (MGF)}
+
+\emph{Moment generating function} (MGF) is a
+%and \emph{characteristic function} are
+powerful function that describes the underlying features of a random variable. 
+The MGF of a RV $X$ is
+$$
+M_X(t) = \E(e^{tX}).
+$$
+Note that $M_X$ may not exist. 
+When $M_X$ exists in a neighborhood of $0$, 
+using the fact that
+$$
+e^{tX} = 1+tX+\frac{(tX)^2}{2!}+\frac{(tX)^3}{3!}+\cdots,
+$$ 
+we have
+$$
+M_X(t) = 1 + t\mu_1 + \frac{t^2\mu_2}{2!}+ \frac{t^3\mu_3}{3!}+\cdots,
+$$
+where $\mu_j = \E(X^j)$ is the $j$-th moment of $X$. 
+Therefore,
+$$
+\E(X^j) = M^{(j)}(0) = \left. \frac{d^j M_X(t)}{dt^j}\right|_{t=0}
+$$
+Here you see how the moments of $X$ is generated by the function $M_X$. 
+
+For two random variables $X,Y$, \emph{if their MGFs are the same,
+then the two random variables have the same CDF.}
+Thus, MGFs can be used as a tool to determine if two random variables 
+have the identical CDF. 
+Note that the MGF is related to the Laplace transform (actually, they are the same)
+and this may give you more intuition why it is so powerful. 
+
+
+The MGF has some interesting properties: 
+\begin{itemize}
+\item {\bf Location-scale.} $M_{aX+b}(t) = \E(e^{(aX+b)t}) = e^{bt} \E(e^{atX}) = e^{bt}M_{X}(at)$. 
+
+\item {\bf Multiplicity. } $M_{X+Y}(t) = \E(e^{(X+Y)t}) = \E(e^{Xt} e^{Yt})$. 
+Thus,
+$$
+X\perp Y \Rightarrow M_{X+Y}(t) = \E(e^{Xt} e^{Yt}) = \E(e^{Xt})\E( e^{Yt}) = M_X(t)M_Y(t).
+$$
+\end{itemize}
+
+
+
+{\bf Example (Bernoulli and Binomial). }
+Let $X\sim {\sf Ber}(p)$. 
+Its MGF is $M_X(t) = \E(e^{tX}) = pe^t + (1-p)$. 
+Let $Y\sim {\sf Bin}(n,p)$.
+Using the fact that we can express it as $Y=X_1+\cdots+X_n$, where each $X_i$ is independent Bernoulli R.V. with parameter $p$.
+Its MGF is 
+$$
+M_Y(t) = \prod_{i=1}^n M_{Z_i}(t) = ( pe^t + (1-p))^n.
+$$
+
+%{\bf Example (Binomial). }
+
+{\bf Example (Poisson). }
+Let $X\sim {\sf Poisson}(\lambda)$.
+Then its MGF is 
+\begin{align*}
+M_X(t) = \E(e^{tX}) = \sum_{x=0} e^{tx} \frac{\lambda^x e^{-\lambda}}{x!} = e^{-\lambda} \underbrace{\sum_x \frac{[\lambda e^t]^x }{x!}}_{= e^{\lambda e^t}} = e^{\lambda(e^t-1)}.
+\end{align*}
+
+{\bf Example (Exponential). }
+Let $X\sim {\sf Exp}(\lambda)$. 
+Then its MGF is 
+$$
+M_X(t) = \E(e^{tX}) = \int e^{tx} \lambda e^{-\lambda x}dx = \frac{\lambda}{\lambda-t}
+$$
+for $t<\lambda$.
+
+
+{\bf Example (Normal). }
+Let $X\sim N(\mu,\sigma^2)$.
+Then you can show that (exercise)
+$$
+M_X(t) = e^{\mu t + \frac{1}{2}\sigma^2t^2}.
+$$
+You can  use the fact that the MGF uniquely determines a distribution to show that 
+any addition of normals is still normal.
+
+
+
+%Sometimes the MGF does not exist so we cannot use it to determine if two
+%RVs have the same distribut 
+
+{\bf Remark (characteristic function).}
+A more general function than MGF is the characteristic function.
+Let $i$ be the imagination number. 
+The characteristic function of a RV $X$ is
+$$
+\phi_X(t) = \E(e^{itX}).
+$$
+When $X$ is absolutely continuous, the characteristic function is the Fourier transform
+of the PDF. 
+The characteristic function always exists and
+when two RVs have the same characteristic function,
+the two RVs have identical distribution. 
+
+
+
+\subsection{Multivariate MGF}
+The MGF can be defined for a random vector. 
+Consider $X = (X_1,\cdots, X_d)\in \mathbb{R}^d$ be a random vector.
+Then its MGF will be a function of $d$ augments
+$$
+M_X(t) = \E(e^{t^TX}),
+$$
+where $t= (t_1,\cdots, t_d) \in \mathbb{R}^d$.
+
+
+
+{\bf Example.}
+Let $X$ be a multivariate normal $MVN(\mu,\Sigma)$,
+where $\mu\in\mathbb{R}^d$ is the mean vector
+and $\Sigma\in \mathbb{R}^{d\times d}$ is the covariance matrix.
+Namely, each component $X_i\sim N(\mu_i, \Sigma_{ii})$ 
+and the covariance ${\sf Cov}(X_i,X_j) = \Sigma_{ij}$.
+Then its MGF will be 
+$$
+M_X(t) = e^{t^T\mu+\frac{1}{2}t^T\Sigma t}.
+$$
+Using this, you can show that 
+a linear tranformation
+$$
+Z = b+AX \sim MVN(b+A\mu, A\Sigma A^T).
+$$
+
+
+{\bf Example (Normal plus Normal). }
+Here we show that the MGF provide a simple way to see that the addition of two normal random variable still leads to normal random variable. 
+Let $X,Y$ be two normal random variable such that their joint distribution is MVN with mean $(\mu_1,\mu_2)$ and covariance matrix $\Sigma$. 
+Consider $Z=X+Y$. 
+To see why $Z$ is still normal, consider its MGF:
+$$
+M_Z(t) = \E(e^{tZ}) = \E(e^{tX+tY}) = M_{X,Y}(t,t),
+$$
+which is the MGF of the normal vector $(X,Y)$ with the augment $(t,t)$. 
+Thus,
+$$
+M_Z(t)  = M_{X,Y}(t,t) = e^{t(\mu_1+\mu_2) + \frac{1}{2}t^2(\Sigma_{11}+\Sigma_{22}+2\Sigma_{12})},
+$$
+which is the MGF of a normal random variable with mean $\mu_1+\mu_2$ and variance $\Sigma_{11}+\Sigma_{22}+2\Sigma_{12} = {\sf Var}(X)+{\sf Var}(Y)+2{\sf Cov}(X,Y)$.
+
+
+
+
+\section{Convergence Theory}
+
+
+Let $F_1,\cdots,F_n, \cdots$ be the corresponding CDFs of $Z_1,\cdots, Z_n,\cdots $.
+For a random variable $Z$ with CDF $F$, we say that
+$Z_n$ {\bf converges in distribution} (a.k.a. converge weakly or converge in law) to $Z$ if for every $x$,
+$$
+\lim_{n\rightarrow \infty}F_n(x) = F(x).
+$$
+In this case, we write
+$$
+Z_n\overset{D}{\rightarrow} Z,\quad \mbox{or } Z_n\overset{d}{\rightarrow} Z.
+$$
+Namely, the CDF's of the sequence of random variables converge to
+a the CDF of a fixed random variable.  
+
+
+For a sequence of random variables $Z_1,\cdots,Z_n,\cdots$,
+we say $Z_n$ {\bf converges in probability} to another random variable $Z$
+%fixed number $\mu$ 
+if for any $\epsilon>0$,
+$$
+\lim_{n\rightarrow \infty}P(|Z_n-Z|>\epsilon) = 0
+$$
+and we will write
+$$
+Z_n\overset{P}{\rightarrow} Z
+$$
+
+%In other words, $Z_n$ converges in probability implies that 
+%the distribution is concentrating at the targeting point. 
+
+
+
+{\bf Remark (convergence almost surely).}
+For a sequence of random variables $Z_1,\cdots,Z_n,\cdots$,
+we say $Z_n$ {\bf converges almost surely} to a random variable $Z$
+if
+$$
+P(\lim_{n\rightarrow\infty} Z_n=Z) = 1
+$$
+or equivalently,
+$$
+P(\{\omega: \lim_{n\rightarrow\infty} Z_n(\omega)=Z(\omega)\}) = 1.
+$$
+We use the notation
+$$
+Z_n\overset{a.s.}{\rightarrow} Z
+$$
+to denote convergence almost surely. 
+Note that almost surely convergence implies convergence in probability.
+Convergence in probability implies convergence in distribution. 
+%In many cases, convergence in probability or almost surely converge
+%occurs when a sequence of RVs converging toward a fixed number. 
+%In this case, we will write (assuming that $\mu$ is the target of convergence)
+%$$
+%Z_n\overset{P}{\rightarrow} \mu,\quad Z_n\overset{a.s.}{\rightarrow} \mu.
+%$$
+%Later we will see that the famous Law of Large Number is describing 
+%the convergence toward a fixed number. 
+
+
+
+{\bf Examples.}
+\begin{itemize}
+\item Let $\{X_1,X_2,\cdots, \}$ be a sequence of random variables such that
+$X_n\sim N\left(0, 1+\frac{1}{n}\right)$.
+Then $X_n$ converges in distribution to $N(0,1)$. 
+
+\item Let $\{X_1,X_2,\cdots\}$ be a sequence of  random variables such that $X_i \sim N(0, 1/n)$.
+Then $X_n\overset{P}{\rightarrow}0$, i.e., it converges in probability to $0$. 
+Also, 
+the random variable $\sqrt{n} X_n \overset{D}{\rightarrow} N(0,1)$.
+
+
+\item Let $\{X_1,X_2,\cdots\}$ be a sequence of  random variables such that 
+$$
+P(X_n =0) =1-\frac{1}{n},\quad P(X_n = 1) = \frac{1}{n}.
+$$
+Then $X_n\overset{P}{\rightarrow}0$.
+
+
+
+
+
+%\item Let $\{X_1,X_2,\cdots\}$ be a sequence of independent random variables such that 
+%$$
+%P(X_n =0) =1-\frac{1}{n},\quad P(X_n = 1) = \frac{1}{n}.
+%$$
+%Then $X_n\overset{P}{\rightarrow}0$ but not almost surely convergence. 
+
+%\item Let $X_0,X_1,X_2,\cdots$ be a sequence of IID (independently and identically distributed)
+%bounded RVs. 
+%Define two other sequences of RVs $\{Y_1,Y_2,\cdots\}$ and $\{Z_1,Z_2,\cdots\}$ such that
+%$$
+%Y_n = X_0 + \frac{1}{n}X_1,\quad Z_n =X_0 + \frac{1}{n}X_n.
+%$$
+%Then 
+%$Y_n \overset{a.s.}{\rightarrow}X_0$ and $Z_n\overset{p}{\rightarrow}X_0$
+%but $Z_n$ does not converge almost surely to $X_0$. 
+\end{itemize}
+
+
+Sometimes, one may be thinking that the convergence in probability/distribution may imply convergence in \emph{expectation}.
+But this is not true!
+Here is an example that it converges in probability to $0$ but its expectation diverges. 
+
+{\bf Example (diverging expectation but convergence in probability). }
+Consider a sequence of RVs $X_1,X_2,\cdots, $ such that
+$$
+P(X_n =0) =1-\frac{1}{n},\quad P(X_n = n^2) = \frac{1}{n}.
+$$
+Then you can easily verify that  $X_n\overset{P}{\rightarrow}0$.
+However, if you compute the expectation, 
+$$
+\E(X_n) = n \rightarrow \infty.
+$$
+So the expectation is in fact diverging. 
+Later we will see that converge in expectation does imply convergence in probability (Markov's inequality).
+
+\begin{lemma}
+Let $Z_1, \cdots, Z_n, \cdots$ be a sequence of random variables and let $Z$ also be a random variable. 
+
+If for all $\varepsilon > 0$, we have 
+\[
+\sum_{n=1}^{\infty} P(|Z_n - Z| > \varepsilon) < \infty,
+\]
+then $Z_n \xrightarrow{\text{a.s.}} Z$.
+\end{lemma}
+
+\begin{theorem}
+Let $Z_1, \cdots, Z_n, \cdots$ be a sequence of random variables and let $Z$ also be a random variable. 
+For any $\varepsilon > 0$, define the set of events
+\[
+A_m = \{ |Z_n - Z| < \varepsilon, \text{ for all } n \ge m \}.
+\]
+Then $Z_n \xrightarrow{\text{a.s.}} Z$ if and only if, for all $\varepsilon > 0$, we have 
+\[
+\lim_{m \to \infty} P(A_m) = 1.
+\]
+\end{theorem}
+\note{The probability that each RV $Z_n$ approaches $Z$ is guaranteed as $n\rightarrow \infty$}
+
+Take the following example
+
+{\bf Example.} Let $\{X_1, X_2, \cdots \}$ be a sequence of independent random variables such that 
+\[
+P(X_n = 0) = 1 - \frac{1}{n}, \quad P(X_n = 1) = \frac{1}{n}.
+\]
+Then $X_n \xrightarrow{p} 0$, but $X_n \not\xrightarrow{\text{a.s.}} 0$.
+
+\medskip
+
+\textbf{Hint:} Use the theorem above and the fact that $X_i$s are independent.
+
+\medskip
+
+\textbf{Solution:} To show that $X_n \xrightarrow{p} 0$, note that for $\varepsilon \in (0,1)$:
+\[
+\lim_{n \to \infty} P(|X_n| > \varepsilon) 
+= \lim_{n \to \infty} P(X_n = 1) 
+= \lim_{n \to \infty} \frac{1}{n} = 0.
+\]
+
+To show that $X_n \not\xrightarrow{\text{a.s.}} 0$, note that following Theorem~3.4, let for $\varepsilon \in (0,1)$,
+\[
+A_m = \{|X_n - 0| < \varepsilon, \text{ for all } n \ge m\}.
+\]
+
+
+\medskip
+We will show that $X_n \not\xrightarrow{\text{a.s.}} 0$ by showing that 
+\[
+\lim_{m \to \infty} P(A_m) = 0.
+\]
+Note that
+\[
+A_m = \{|X_n| < \varepsilon, \text{ for all } n \ge m\}
+      = \{X_n = 0, \text{ for all } n \ge m\},
+\]
+and
+\[
+P(A_m) = P(X_n = 0, \text{ for all } n \ge m)
+        \le P(X_m = 0, X_{m+1} = 0, \ldots, X_N = 0), \text{ for } N > m.
+\]
+Since the $X_i$s are independent,
+\[
+P(X_m = 0, \ldots, X_N = 0) 
+= P(X_m = 0) \cdots P(X_N = 0)
+= \frac{m-1}{m} \cdot \frac{m}{m+1} \cdots \frac{N-1}{N} 
+= \frac{m-1}{N}.
+\]
+Then
+\[
+\lim_{m \to \infty} P(A_m) 
+\le \lim_{m \to \infty, N > m} \frac{m-1}{N} = 0.
+\]
+
+To see that $\frac{m-1}{N} \xrightarrow{m \to \infty} 0$, note that we can choose $N = m^2$.
+
+{\bf Example. }Let $\Omega = [0,1)$ and suppose that $\{X_1, X_2, \cdots\}$ is a sequence of random variables defined so that
+\[
+X_n = 
+\begin{cases}
+1, & \text{if } 0 \le \omega \le \dfrac{n+1}{2n}, \\
+0, & \text{otherwise.}
+\end{cases}
+\]
+
+Furthermore, suppose a random variable $X$ is defined as follows:
+\[
+X = 
+\begin{cases}
+1, & \text{if } 0 \le \omega < 0.5, \\
+0, & \text{otherwise.}
+\end{cases}
+\]
+
+Show that $X_n \xrightarrow{\text{a.s.}} X$.
+
+\medskip
+\textbf{Solution:} 
+For $\omega \in [0, 0.5)$, we have that $\omega \in [0, \tfrac{n+1}{2n}]$ for all $n \in \mathbb{N}$, so it is clear that $X_n(\omega) = 1 = X(\omega)$.
+
+For $\omega \in [0.5, 1)$, we have that $X(\omega) = 0$. 
+Note that for $X_n(\omega) = 0$, we must have $\omega > \tfrac{n+1}{2n}$. 
+That is, we must have $n > \dfrac{1}{2\omega - 1}$. 
+Clearly, this holds true for any finite $\omega$ as $n \to \infty$. 
+That is, for $\omega \in [0.5, 1)$,
+\[
+P\big(\{\omega : \lim_{n \to \infty} X_n(\omega) = 0 = X(\omega)\}\big) = 1.
+\]
+
+
+\subsection{Weak Law of Large Numbers}
+
+
+We write $X_1,\cdots,X_n\sim F$
+when $X_1,\cdots,X_n$ are IID (independently, identically distributed) from a CDF $F $. 
+In this case, $X_1,\cdots,X_n$ is called a \emph{random sample}.
+
+
+
+\begin{theorem}[Markov's inequality]
+Let $X$ be a non-negative RV. 
+Then for any $\epsilon>0$,
+$$
+P(X\geq \epsilon)\leq \frac{\E(X)}{\epsilon}. 
+$$
+\end{theorem}
+
+A feature of the Markov inequality is that 
+it implies that \emph{converges in expectation $\Rightarrow$ convergence in probability}.
+Also, the Markov's inequality implies the following useful result, known as the Chebyshev's inequality.
+
+
+\begin{theorem}[Chebyshev's inequality]
+Let $X$ be a RV with finite variance.
+Then for any $\epsilon>0$,
+$$
+P(|X-\E(X)|\geq \epsilon)\leq \frac{{\sf Var}(X)}{\epsilon^2}. 
+$$
+\end{theorem}
+The Chebyshev's inequality shows that for a sequence of random variables with equal mean
+but a vanishing variance, 
+this sequence converges in probability to the mean. 
+When applying to the sample mean,
+it becomes the famous (weak) law of large numbers.
+
+
+
+\begin{theorem}[Weak Law of Large Numbers]
+Let $X_1,\cdots, X_n\sim F$ and $\mu = \E(X_1)$. 
+If $\E|X_1|<\infty$ and ${\sf Var}(X_1) = \sigma^2<\infty$,
+the sample average 
+$$
+\bar{X}_n =  \frac{1}{n}\sum_{i=1}^n X_i
+$$
+converges in probability to $\mu$.
+i.e.,
+$$
+\bar{X}_n\overset{P}{\rightarrow} \mu.
+$$
+
+\end{theorem}
+\begin{proof}
+Using the property of sample mean, one can easily show that 
+$$
+{\sf Var}(\bar{X}_n) = \frac{\sigma^2}{n}.
+$$
+Thus, by the Chebyshev's inequality
+$$
+P(|\bar X_n - \mu|>t)\leq \frac{\sigma^2}{nt^2}\rightarrow 0,
+$$
+which completes the proof.
+
+
+\end{proof}
+
+The above theorem is also known as Weak Law of Large Numbers. 
+In fact, we do not need to assume the existence of variance--this condition can be relaxed (but 
+the proof will become much more complicated). 
+Note that there is something called the strong law of large number, which 
+states the convergence in terms of `almost surely convergence'. 
+
+
+
+
+% \subsection{Central Limit Theorem}
+
+
+% \begin{theorem}[Central Limit Theorem]
+% Let $X_1,\cdots, X_n$ be IID random variables with $\mu = \E(X_1)$ and $\sigma^2 = {\sf Var}(X_1)<\infty$. 
+% Let $\bar{X}_n$ be the sample average.
+% Then
+% $$
+% \sqrt{n}\left(\frac{\bar{X}_n-\mu}{\sigma}\right) \overset{D}{\rightarrow} N(0,1).
+% $$
+% Note that $N(0,1)$ is also called \emph{standard normal random variable}. 
+
+% \end{theorem}
+
+% \begin{proof}
+% Let $Z = \sqrt{n}(\bar {X}_n - \mu)$. 
+% Proving the problem is equivalent to showing that $Z\rightarrow N(0,\sigma^2)$. 
+
+% Note that we can rewrite $Z$ as 
+% $$
+% Z  = \sqrt{n}(\bar {X}_n - \mu) = \frac{1}{\sqrt{n}}\sum_{i=1}^n(X_i-\mu) = \frac{1}{\sqrt{n}}\sum_{i=1}^nY_i,
+% $$
+% where each $Y_i$ has mean $0$ and variance $\sigma^2$ and are IID. 
+% Thus, the MGF of $Z$ is 
+% \begin{equation}
+% M_Z(t) = \E(e^{tZ}) = \E\left(e^{\frac{t}{\sqrt{n}} \sum_{i=1}^nY_i}\right)= \E\left(e^{\frac{t}{\sqrt{n}} Y_1}\right)^n = M_{Y_1}(t/\sqrt{n})^n.
+% \label{eq::MGF1}
+% \end{equation}
+% Note that we use the fact that $Y_1,\cdots, Y_n$ are IID in the last equality. 
+
+% Now we analyze $M_{Y_1}(t/\sqrt{n})$: 
+% $$
+% M_{Y_1}(t/\sqrt{n}) = \E(e^{tY/\sqrt{n}}) = 1 +\frac{t}{\sqrt{n}}\underbrace{\E(Y)}_{=0}+\frac{t^2}{2{n}}\underbrace{\E(Y^2)}_{=\sigma^2} + \mbox{ smaller order term}. 
+% $$
+% The remaining terms are smaller order because we are under $n\rightarrow\infty$. 
+% Denoting the smaller order term as $o(1),$
+% using the above expansion, we can see that 
+% $$
+% M_{Y_1}(t/\sqrt{n})^n = \left(1+\frac{t^2 \sigma^2}{2n + o(1)}\right)^n\rightarrow e^{\frac{1}{2}t^2\sigma^2}.
+% $$
+% Thus, Equation \eqref{eq::MGF1} will be approaching
+% $$
+% M_Z(t) = M_{Y_1}(t/\sqrt{n})^n=\left(1+\frac{t^2 \sigma^2}{2n + o(1)}\right)^n\rightarrow e^{\frac{1}{2}t^2\sigma^2},
+% $$
+% which is the MGF of a normal random variable with mean $0$ and variance $\sigma^2$.
+% So we have proved the desired result.
+
+
+% \end{proof}
+
+
+
+% Note that there are other versions of central limit theorem
+% that allows dependent RVs or infinite variance
+% using the idea of `triangular array' (also known as the Lindeberg-Feller Theorem).
+% However, the details are beyond the scope of this course so we will not pursue it here.
+
+
+
+
+% \subsection{Other useful theorems}
+
+% \emph{Continuous mapping theorem:}
+% Let $g$ be a continuous function. 
+% \begin{itemize}
+% \item If a sequence of random variables $X_n\overset{D}{\rightarrow}X$,
+% then $g(X_n)\overset{D}{\rightarrow}g(X)$. 
+% \item If a sequence of random variables $X_n\overset{p}{\rightarrow}X$,
+% then $g(X_n)\overset{p}{\rightarrow}g(X)$. 
+% \end{itemize}
+
+% \emph{Slutsky's theorem:}
+% Let $\{X_n:n=1,2,\cdots\}$ and $\{Y_n:n=1,2,\cdots\}$ be two sequences of RVs
+% such that 
+% $X_n\overset{D}{\rightarrow} X$ and $Y_n\overset{p}{\rightarrow}c$,
+% where $X$ is a RV $c$ is a constant.
+% Then
+% \begin{align*}
+% X_n+Y_n&\overset{D}{\rightarrow} X+c\\
+% X_nY_n&\overset{D}{\rightarrow} c X\\
+% X_n/Y_n&\overset{D}{\rightarrow} X/c \quad \mbox{(if $c\neq 0$)}.
+% \end{align*}
+
+% We will these two theorems very frequently when we are talking
+% about the maximum likelihood estimator. 
+
+
+% Why do we need these notions of convergences? 
+% The convergence in probability is related to the concept of statistical consistency. 
+% An estimator is statistically consistent if it converges in probability
+% toward its target population quantity. 
+% The convergence in distribution is often used to construct
+% a confidence interval or perform a hypothesis test. 
+
+
+% \section{Concentration inequality}
+
+
+% In addition to the above two theorems, we often use the concentration inequality
+% to obtain convergence in probability. 
+% Let $\{X_n:n=1,2,\cdots\}$ be a sequence of RVs. 
+% For a given $\epsilon>0$, 
+% the concentration inequality aims at finding the function $\phi_n(\epsilon)$ such that
+% $$
+% P(|X_n -\E(X_n)|>\epsilon)\leq \phi_n(\epsilon)
+% $$
+% and $\phi_n(\epsilon)\rightarrow0$.
+% This automatically gives us convergence in probability. 
+% Moreover, the \emph{convergence rate} of $\phi_n(\epsilon)$ with respect to $n$
+% is a central quantity that describes
+% how fast $X_n$ converges toward its mean. 
+
+
+
+
+% {\bf Example: concentration of a Gaussian mean.}
+% The Markov's inequality implies a useful bound on describing how fast the sample mean of a Gaussian converges
+% to the population mean. 
+% For simplicity, we consider a sequence of  mean $0$ Gaussians:
+% $X_1,\cdots, X_n\sim N(0,\sigma^2)$. 
+% Let $\bar{X}_n = \frac{1}{n}\sum_{i=1}^n X_i$ be the sample mean. 
+% It is known that ${\bar X}_n\sim N(0,\sigma^2/n)$. 
+% Then
+% \begin{align*}
+% P(\bar{X}_n>\epsilon) & = P(e^{\bar{X}_n}> e^\epsilon)\\
+% & = P(e^{s\bar{X}_n}> e^{s\epsilon})\\
+% &\leq \frac{\E(e^{s \bar{X}_n})}{e^{s\epsilon}}\qquad \mbox{by Markov's inequality}\\
+% & \leq e^{\frac{1}{2n}\sigma^2s^2  - s\epsilon} \qquad \mbox{by the MGF of Gaussian}
+% \end{align*}
+% for any positive number $s$. 
+% In the exponent, it is a quadratic function of $s$ and the maximal occurs at $s= \frac{n\epsilon}{\sigma^2}$, leading to 
+% $$
+% P(\bar{X}_n>\epsilon)\leq e^{-\frac{n\epsilon^2}{2\sigma^2}}.
+% $$
+% The same bound holds for the other direction $P(\bar{X}_n<-\epsilon)\leq e^{-\frac{n\epsilon^2}{2\sigma^2}}.$
+% So we conclude
+% $$
+% P(|\bar{X}_n|>\epsilon)\leq 2e^{-\frac{n\epsilon^2}{2\sigma^2}}
+% $$
+% or more generally,
+% $$
+% P(|\bar{X}_n - \E(X_1)|>\epsilon)\leq 2e^{-\frac{n\epsilon^2}{2\sigma^2}}.
+% $$
+% A bound like the above is often referred to as a \emph{concentration inequality}. 
+
+
+% {\bf Example (concentration of a maximum). }
+% Let $X_1,\cdots, X_n$ be IID standard normal random variables $N(0,\sigma^2)$.
+% Define $Z_n = \max\{|X_1|,\cdots,| X_n|\}$ be the maximal number among them. 
+% Intuitively, we know that when $n\rightarrow\infty$, $Z_n$ should be diverging
+% since we are taking the maximum of more and more values.
+% But it is possible to find an increasing sequence $\gamma_n\rightarrow\infty$
+% such that 
+% $Z_n/\gamma_n$ will not diverge (in probability). 
+% How do we find such $\gamma_n$? 
+% A simple approach is based on the concentration inequality. 
+% Using the result from previous example, we know that for a single random variable $X_i$ (replace the sample mean by the mean of a single RV), we have
+% $$
+% P(|X_i|>\epsilon)\leq 2e^{-\frac{\epsilon^2}{2\sigma^2}}.
+% $$
+% With this, we can bound
+% \begin{align*}
+% P(Z_n>\epsilon) &= P(\max\{|X_1|,\cdots, |X_n|\}>\epsilon)\\
+% &\leq \sum_{i=1}^n P(|X_i|>\epsilon)\qquad\mbox{(maximum is over $\epsilon\Rightarrow$ one of them must hold)}\\
+% &\leq 2n e^{-\frac{\epsilon^2}{2\sigma^2}}.
+% \end{align*}
+% Thus, as long as we can choose a sequence $\epsilon = \epsilon_n$ such that 
+% $$
+% 2n e^{-\frac{\epsilon_n^2}{2\sigma^2}}\rightarrow \delta
+% $$
+% for some constant $0<\delta<1$,
+% we can bound how fast $Z_n $ diverge.
+% Solving this gives us a single rule $\epsilon_n =\sigma\sqrt{2\log (2n) - 2\log (\delta)}$.
+% This leads to the choice of $\gamma_n = \sigma\sqrt{2\log n}$,
+% which gives a characterization on how fast $Z_n$ diverges.
+
+
+% \subsection{Concentration of mean}
+
+
+
+% Let $X_1,\cdots, X_n\sim F$ be a random sample such that 
+% $\sigma^2 = {\sf Var}(X_1)$.
+% Using the Chebyshev's inequality, 
+% we know that the sample average $\bar{X}_n$
+% has a concentration inequality:
+% $$
+% P(|\bar{X}_n-\E(\bar{X}_n)|\geq \epsilon)\leq \frac{\sigma^2}{n\epsilon^2}. 
+% $$
+
+% However, when the RVs are bounded, there is a stronger notion of
+% convergence, as described in the following theorem. 
+
+% \begin{theorem}[Hoeffding's inequality]
+% Let $X_1,\cdots, X_n$ be IID RVs such that $0\leq X_1\leq 1$
+% and let $\bar{X}_n$ be the sample average. 
+% Then for any $\epsilon>0$,
+% $$
+% P(|\bar{X}_n-\E(\bar{X}_n)|\geq \epsilon)\leq 2e^{-2n\epsilon^2}.
+% $$
+% \end{theorem}
+
+% Before proving the Hoeffding's inequality, we first introduce the following lemma:
+% \begin{lemma}
+% Let $X$ be a random variable with $\E(X)=0$ and $a\leq X \leq b$. 
+% Then
+% $$
+% \E(e^{tX})\leq e^{t^2 (b-a)^2/8}
+% $$
+% for any positive number $t$.
+% \label{lem::Gaussian_tail}
+% \end{lemma}
+% \begin{proof}
+% We will use the fact that $x\mapsto e^{tx}$
+% is a convex function for all positive $t$.
+% Recall that a function $g(x)$ is a convex function if for any two point $a<b$ and $\alpha\in [0,1]$,
+% $$
+% g(\alpha a+(1-\alpha)b) \leq \alpha g(a) + (1-\alpha)g(b).
+% $$
+
+% Because $X \in [a,b]$, we define $\alpha_X$ to 
+% $$
+% X = \alpha_X b + (1-\alpha_X)a.
+% $$
+% This implies
+% $$
+% \alpha_X = \frac{X-a}{b-a}
+% $$
+
+% Using the fact that $x\mapsto e^{tx}$ is convex, 
+% $$
+% e^{tX} \leq \alpha_X e^{tb} +(1-\alpha_X) e^{ta} = \frac{X-a}{b-a}e^{tb} + \frac{b-X}{b-a} e^{ta}.
+% $$
+% Now taking the expectation in both sides, 
+% \begin{equation}
+% \E(e^{tX}) \leq \frac{\E(X)-a}{b-a}e^{tb} + \frac{b-\E(X)}{b-a} e^{ta} =  \frac{b}{b-a} e^{ta} -  \frac{a}{b-a} e^{tb} = e^{g(s)},
+% \label{eq::egs}
+% \end{equation}
+% where $s = t(b-a)$ and $g(s) = -\gamma s+\log(1-\gamma+\gamma e^{s})$ and $\gamma = -a/(b-a)$.
+% Note that $g(0) = g'(0) = 0$ and $g''(s)\leq 1/4$ for all positive $s$.
+% Using Taylor's theorem,
+% $$
+% g(s) = g(0) + sg'(0) + \frac{1}{2}s^2g''(s^*)
+% $$
+% for some $s^* \in [0,s]$. 
+% Thus, we conclude $g(s) \leq \frac{1}{2}\times s^2\times \frac{1}{4}=\frac{1}{8}s^2$.
+
+% Then equation \eqref{eq::egs} implies
+% $$
+% \E(e^{tX}) \leq e^{g(s)} \leq e^{\frac{s^2}{8}} = e^{\frac{t^2(b-a)^2}{8}}.
+% $$
+% \end{proof}
+
+
+
+
+% Now we formally prove the Hoeffding's inequality.
+
+% \begin{proof}
+
+% We first prove that $P\left(\bar{X}_n-\mu\geq\epsilon\right)\leq e^{-2n\epsilon^2/(b-a)^2}$.
+
+% Let $Y_i = X_i-\mu$.
+% Because the exponential function is monotonic, for any positive $r$,
+% \begin{align*}
+% P\left(\bar{X}_n-\mu\geq\epsilon\right)
+% &=P\left(\bar{Y}_n\geq\epsilon\right)\\
+% & = P\left(\sum_{i=1}^n Y_i\geq n \epsilon\right)\\
+% & = P\left(e^{\sum_{i=1}^n Y_i}\geq e^{n\epsilon}\right)\\
+% & = P\left(e^{t\sum_{i=1}^n Y_i}\geq e^{tn\epsilon}\right)\\
+% &\leq \frac{\E(e^{t\sum_{i=1}^n Y_i})}{e^{tn\epsilon}}\quad \mbox{ by Markov's inequality}\\
+% &= e^{-tn\epsilon}\E(e^{tY_1}\cdot e^{tY_2}\cdots e^{tY_n})\\
+% &= e^{-tn\epsilon}\E(e^{tY_1})\cdot \E(e^{tY_2})\cdots \E(e^{tY_n})\\
+% &= e^{-tn\epsilon}\E(e^{tY_1})^n\\
+% &\leq e^{-tn\epsilon}e^{nt^2 (b-a)^2/8} \mbox{ by Lemma~\ref{lem::Gaussian_tail}}.
+% \end{align*}
+
+% Because the above inequality holds for all positive $t$,
+% we can choose $t$ to optimize the bound. 
+% To get the bound as sharp as possible,
+% we would like to make it as small as possible. 
+% Thus,
+% we need to find $t$ such that
+% $$
+% -tn\epsilon + nt^2 (b-a)^2/8
+% $$
+% is minimized. 
+% Taking derivatives with respect to $t$ and set it to be $0$,
+% we obtain
+% $$
+% t_* = \frac{4\epsilon}{(b-a)^2}
+% $$
+% and 
+% $$
+% -t_*n\epsilon + nt_*^2 (b-a)^2/8 = -2n\epsilon^2/(b-a)^2.
+% $$
+% Thus, the inequality becomes
+% \begin{align*}
+% P\left(\bar{X}_n-\mu\geq\epsilon\right)
+% \leq e^{-t_*n\epsilon}e^{nt^2_* (b-a)^2/8} = e^{-2n\epsilon^2/(b-a)^2}.
+% \end{align*}
+
+% The same proof also applies to the case $P\left(\bar{X}_n-\mu\leq \epsilon\right)$
+% and we will obtain the same bound.
+% Therefore, we conclude that
+% $$
+% P\left(|\bar{X}_n-\mu|\geq\epsilon\right) \leq 2 e^{-2n\epsilon^2/(b-a)^2}.
+% $$
+
+% \end{proof}
+
+% Hoeffding's inequality gives a concentration of the order of exponential (actually
+% it is often called a Gaussian rate)
+% so the convergence rate is much faster than the one given by the Chebyshev's inequality. 
+% Obtaining such an exponential rate is useful for analyzing the property of an estimator.
+% Many modern statistical topics, such as high-dimensional problem, nonparametric inference,
+% semi-parametric inference, and empirical risk minimization all rely on 
+% a convergence rate of this form. 
+
+% Note that the exponential rate may also be used to obtain an almost sure convergence
+% via the Borel-Cantelli Lemma. 
+
+
+% {\bf Example: consistency of estimating a high-dimensional proportion.}
+% To see how the Hoeffding's inequality is useful,
+% we consider the problem of estimating the proportion of several binary variables.
+% Suppose that we observe IID observations
+% $$
+% X_1,\cdots, X_n \in \{0,1\}^d.
+% $$
+% $X_{ij}=1$ can be interpreted as the $i$-th individual response `Yes' in $j$-th question. 
+% We are interested in estimating the proportion vector $\pi \in[0,1]^d$
+% such that $\pi_j = P(X_{ij} = 1)$ is the proportion of `Yes' response in $j$-th question in the population.
+% A simple estimator is the sample proportion $\hat \pi = (\hat \pi_1,\cdots, \hat\pi_d)^T$
+% such that 
+% $$
+% \hat \pi_j = \frac{1}{n}\sum_{i=1}^n X_{ij}.
+% $$
+% When $d$ is much smaller than $n$, it is easy to see that this is a good estimator.
+% However, if $d=d_n\rightarrow\infty$ with $n\rightarrow\infty$,
+% will $\hat \pi$ still be a good estimator of $\pi$?
+% To define a good estimator, we mean that \emph{every proportion} can be estimated accurately. 
+% A simple way to quantify this is the vector max norm:
+% $$
+% \|\hat \pi-\pi\|_{\max} = \max_{j=1,\cdots, d}|\hat \pi_j - \pi_j|.
+% $$
+% We consider the problem of estimating $\pi_j$ first.
+% It is easy to see that by the Hoeffding's inequality,
+% $$
+% P(|\hat \pi_j - \pi_j|> \epsilon)\leq 2e^{-2n\epsilon^2}.
+% $$
+% Thus, 
+% \begin{equation}
+% \begin{aligned}
+% P(\|\hat \pi-\pi\|_{\max}>\epsilon)& = P\left(\max_{j=1,\cdots, d}|\hat \pi_j - \pi_j| >\epsilon\right)\\
+% &\leq \sum_{j=1}^d P(|\hat \pi_j - \pi_j|> \epsilon)\\
+% &\leq 2d e^{-2n\epsilon^2}.
+% \end{aligned}
+% \label{eq::unif}
+% \end{equation}
+% Thus, as long as $2d e^{-2n\epsilon^2}\rightarrow 0$ for any fixed $\epsilon$,
+% we have the statistical consistency.
+% This implies that we need
+% $$
+% \frac{\log d}{n} \rightarrow 0,
+% $$
+% which allows the number of questions/variables to increase a lot faster than the sample size $n$!
+
+
+% %\section{$O_P$ and $o_P$ Notations}
+% %
+% %
+% %For a sequence of numbers $a_n$ (indexed by $n$), 
+% %we write $a_n = o(1)$ if $a_n\rightarrow 0$ when $n\rightarrow \infty$.
+% %For another sequence $b_n$ indexed by $n$, we write 
+% %$a_n = o(b_n)$ if $a_n/b_n = o(1)$.
+% %
+% %
+% %For a sequence of numbers $a_n$, we write $a_n = O(1)$
+% %if for all large $n$, there exists a constant $C$ such that 
+% %$|a_n|\leq C$. 
+% %For another sequence $b_n$, we write $a_n = O(b_n)$ if
+% %$a_n/b_n=O(1)$.
+% %
+% %
+% %{\bf Examples.}
+% %\begin{itemize}
+% %\item Let $a_n = \frac{2}{n}$. Then $a_n=o (1)$ and $a_n = O\left(\frac{1}{n}\right)$.
+% %\item Let $b_n = n+5+\log n.$ Then $b_n = O(n)$ and $b_n = o(n^2)$ and $b_n = o(n^3)$.
+% %\item Let $c_n = 1000 n + 10^{-10}n^2$. Then $c_n = O(n^2)$ and $c_n= o(n^2\cdot \log n )$.
+% %\end{itemize}
+% %
+% %Essentially, the big $O$ and small $o$ notation give us a way to compare the leading convergence/divergence rate
+% %of a sequence of (non-random) numbers. 
+% %
+% %
+% %The $O_P$ and $o_P$ are similar notations to $O$ and $o$
+% %but are designed for random numbers. 
+% %For a sequence of random variables $X_n$, we write
+% %$X_n = o_P(1)$ if for any $\epsilon>0$,
+% %$$
+% %P(|X_n|>\epsilon) \rightarrow 0
+% %$$
+% %when $n\rightarrow \infty$. 
+% %Namely, 
+% %$P(|X_n|>\epsilon) = o(1)$ for any $\epsilon>0$.
+% %Let $a_n$ be a nonrandom sequence,
+% %we write $X_n = o_P(a_n)$ if 
+% %$X_n/a_n = o_P(1)$.
+% %
+% %In the case of $O_P$, we write
+% %$X_n = O_P(1)$ if for every $\epsilon>0$, there exists a constant $C$ such that 
+% %$$
+% %P(|X_n|>C)\leq \epsilon.
+% %$$
+% %We write $X_n = O_P(a_n)$ if $X_n/a_n = O_P(1)$.
+% %
+% %
+% %{\bf Examples.}
+% %\begin{itemize}
+% %\item Let $X_n$ be an R.V. (random variable) from a Exponential distribution with $\lambda=n$. Then
+% %$X_n = O_P(\frac{1}{n})$
+% %\item Let $Y_n $ be an R.V from a normal distribution with mean $0$ and variance $n^2$. 
+% %Then $Y_n = O_P(n)$ and $Y_n = o_P(n^2)$.
+% %\item Let $A_n$ be an R.V. from a normal distribution with mean $0$ and variance $10^{100}\cdot n^2$
+% %and $B_n $ be an R.V. from a normal distribution with mean $0$ and variance $0.1\cdot n^4$.
+% %Then $A_n + B_n = O_P(n^2)$. 
+% %
+% %%\item Let $Z_n$ be a normal distribution with mean $\log n$ and variance $10^{100}$,
+% %%then $Z_n = O_P(\log n)$.
+% %\end{itemize}
+% %
+% %If we have a sequence of random variables $X_n = Y_n+a_n$,
+% %where $Y_n$ is random and $a_n$ is non-random such that $Y_n =O_P(b_n)$ and $a_n = O(c_n)$.
+% %Then we write
+% %$$
+% %X_n = O_P(b_n) + O(c_n).
+% %$$
+% %{\bf Examples.}
+% %\begin{itemize}
+% %\item Let $A_n$ be an R.V. from a uniform distribution over the interval $[n^2-2n, n^2+2n]$. 
+% %Then $A_n  = O(n^2) + O_P(n)$.
+% %\item Let $X_n$ be an R.V from a normal distribution with mean $\log n$ and variance $10^{100}$,
+% %then $X_n = O(\log n) + O_P(1)$.
+% %\end{itemize}
+% %
+% %
+% %The following lemma is an important property for a sequence of random variables $X_n$.
+% %\begin{lemma}
+% %Let $X_n$ be a sequence of random variables.
+% %If there exists a sequence of numbers $a_n,b_n$ such that 
+% %$$
+% %|\E(X_n)| \leq a_n ,\quad {\sf Var}(X_n) \leq b_n^2.
+% %$$
+% %Then 
+% %$$
+% %X_n = O(a_n) +O_P(b_n).
+% %$$
+% %\end{lemma}
+% %{\bf Examples.}
+% %\begin{itemize}
+% %\item Let $X_1,\cdots,X_n$ be IID from ${\sf Exp}(5)$. 
+% %Then the sample average 
+% %$$
+% %\bar{X}_n = O(1) + O_P(1/\sqrt{n}).
+% %$$
+% %\item Let $Y_1,\cdots,Y_n$ be IID from $N(5\log n,1)$. 
+% %Then the sample average 
+% %$$
+% %\bar{Y}_n = O(\log n) + O_P(1/\sqrt{n}).
+% %$$
+% %\end{itemize}
+% %
+% %
+% %
+% %%The following is a useful method for obtaining bounds on $O_P$:
+% %%\begin{lemma}
+% %%Let $X$ be a non-negative random variable. 
+% %%Then for any positive number $t$, 
+% %%$$
+% %%P(X\geq t) \leq \frac{\E(X)}{t}.
+% %%$$
+% %%\end{lemma}
+% %
+% %{\bf Application.}
+% %\begin{itemize}
+% %\item Let $X_n$ be a sequence of random variables that are uniformly distributed over $[-n^2,n^2]$. 
+% %It is easy to see that $|X_n|\leq n^2$ so $\E(|X_n|)\leq n^2$. 
+% %Then by Markov's inequality, 
+% %$$
+% %P(|X_n|\geq t)  \leq \frac{\E(|X_n|)}{t} \leq \frac{n^2}{t}.
+% %$$
+% %Let $Y_n = \frac{1}{n^2}X_n$. Then
+% %$$
+% %P(|Y_n|\geq t) = P\left( \frac{1}{n^2}|X_n|\geq t\right) = P(|X_n|\geq n^2\cdot t)  \leq \frac{n^2}{n^2\cdot t} = t
+% %$$
+% %for any positive $t$.
+% %This implies $Y_n = O_P(1)$ so $X_n = O_P(n^2)$.
+% %
+% %\item The Markov inequality and Chebeshev's inequality 
+% %are good tools for deriving the $O_P$ bound.
+% %For a sequence of random variables $\{X_n:n=1,\cdots\}$,
+% %the Markov inequality implies
+% %$$
+% %X_n = O_P(\E(|X_n|)).
+% %$$
+% %The Chebeshev's inequality implies 
+% %$$
+% %X_n =  O_P(\sqrt{{\sf Var}(X_n)})
+% %$$
+% %if $\E(X_n) = 0$.
+% %
+% %\item If we obtain a bound like equation \eqref{eq::unif}, we can use $O_P$ notation to elegantly
+% %denote it as 
+% %$$
+% %\|\hat \pi-\pi\|_{\max} = O_P\left(\sqrt{\frac{\log d}{n}}\right).
+% %$$
+% %
+% %\end{itemize}
+% %%
+
+
+
+% %xxx examples of normals, chi squares, t distribution, f distribution
+
+
+\end{document}
+
+
+
+
+
